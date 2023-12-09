@@ -7,9 +7,15 @@ def main():
     data = get_data(day=day, year=year)
 
     test_data_a = {
+            """0 3 6 9 12 15
+            1 3 6 10 15 21
+            10 13 16 21 30 45""": 114,
     }
     test_data_b = {
-    }
+             """0 3 6 9 12 15
+            1 3 6 10 15 21
+            10 13 16 21 30 45""": 2,
+   }
 
     for i, (test, true) in enumerate(test_data_a.items()):
         result = solve_a(test)
@@ -31,11 +37,27 @@ def main():
 
 
 def solve_a(data):
-    pass
+    res = 0
+    for line in data.splitlines():
+        numbers = [[int(x) for x in line.split()]]
+        while any(numbers[-1]):
+            numbers.append([numbers[-1][i-1]-numbers[-1][i] for i in range(1, len(numbers[-1]))])
+        for i in range(len(numbers)-2, -1, -1):
+            numbers[i].append(numbers[i][-1] - numbers[i+1][-1])
+        res += numbers[0][-1]
+    return res
 
 
 def solve_b(data):
-    pass
+    res = 0
+    for line in data.splitlines():
+        numbers = [[int(x) for x in line.split()]]
+        while any(numbers[-1]):
+            numbers.append([numbers[-1][i-1]-numbers[-1][i] for i in range(1, len(numbers[-1]))])
+        for i in range(len(numbers)-2, -1, -1):
+            numbers[i].insert(0, numbers[i][0] + numbers[i+1][0])
+        res += numbers[0][0]
+    return res
 
 
 if __name__ == "__main__":
