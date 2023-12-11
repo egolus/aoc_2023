@@ -7,8 +7,38 @@ def main():
     data = get_data(day=day, year=year)
 
     test_data_a = {
+            """...#......
+            .......#..
+            #.........
+            ..........
+            ......#...
+            .#........
+            .........#
+            ..........
+            .......#..
+            #...#.....""": 374,
     }
     test_data_b = {
+            ("""...#......
+            .......#..
+            #.........
+            ..........
+            ......#...
+            .#........
+            .........#
+            ..........
+            .......#..
+            #...#.....""", 10): 1030,
+            ("""...#......
+            .......#..
+            #.........
+            ..........
+            ......#...
+            .#........
+            .........#
+            ..........
+            .......#..
+            #...#.....""", 100): 8410
     }
 
     for i, (test, true) in enumerate(test_data_a.items()):
@@ -20,8 +50,8 @@ def main():
     print(f"result a: {result_a}\n")
     submit(result_a, part="a", day=day, year=year)
 
-    for i, (test, true) in enumerate(test_data_b.items()):
-        result = solve_b(test)
+    for i, ((test, expand), true) in enumerate(test_data_b.items()):
+        result = solve_b(test, expand)
         print(f"result {i}: {result}\n")
         assert result == true, f"{result} != {true}"
 
@@ -31,11 +61,82 @@ def main():
 
 
 def solve_a(data):
-    pass
+    space = []
+    maxX = 0
+    addY = 0
+    addX = []
+
+    for y, line in enumerate(data.splitlines()):
+        if all(c == "." for c in line.strip()):
+            addY += 1
+        for x, c in enumerate(line.strip()):
+            if c == "#":
+                space.append((y + addY, x))
+        maxX = x
+
+    xs = [x for (_, x) in space]
+    for x in range(maxX):
+        if not any(dx == x for dx in xs):
+            addX.append(x)
+    for i in range(len(space)):
+        y, x = space[i]
+        for j in range(len(addX)):
+            if x > addX[j]:
+                space[i] = (y, x+j+1)
+
+    dists = []
+    for i, g in enumerate(space):
+        for j, h in enumerate(space[i+1:]):
+            y = abs(g[0] - h[0])
+            x = abs(g[1] - h[1])
+            dists.append(y+x)
+
+    return sum(dists)
 
 
-def solve_b(data):
-    pass
+def solve_b(data, expand=1_000_000):
+    space = []
+    maxX = 0
+    addY = 0
+    addX = []
+
+    for y, line in enumerate(data.splitlines()):
+        for x, c in enumerate(line.strip()):
+            if c == "#":
+                space.append((y, x))
+    print(space)
+    space.clear()
+
+    for y, line in enumerate(data.splitlines()):
+        if all(c == "." for c in line.strip()):
+            addY += (expand - 1)
+        for x, c in enumerate(line.strip()):
+            if c == "#":
+                space.append((y + addY, x))
+        maxX = x
+
+    xs = [x for (_, x) in space]
+    for x in range(maxX):
+        if not any(dx == x for dx in xs):
+            addX.append(x)
+    print(f"addX: {addX}")
+    for i in range(len(space)):
+        y, x = space[i]
+        for j in range(len(addX)):
+            if x > addX[j]:
+                space[i] = (y, x + (1 + j) * (expand - 1))
+
+    print(space)
+    dists = []
+    for i, g in enumerate(space):
+        for j, h in enumerate(space[i+1:]):
+            y = abs(g[0] - h[0])
+            x = abs(g[1] - h[1])
+            print((i, j+i+1), (x, y), x+y)
+            dists.append(y+x)
+    print(dists)
+
+    return sum(dists)
 
 
 if __name__ == "__main__":
